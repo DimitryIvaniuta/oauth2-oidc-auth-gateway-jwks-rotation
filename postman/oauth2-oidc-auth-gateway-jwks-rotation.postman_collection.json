@@ -1,0 +1,137 @@
+{
+  "info": {
+    "name": "oauth2-oidc-auth-gateway-jwks-rotation",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Spring Boot 3.5.9 (Java 21) Auth Gateway: JWT validation with Redis-cached JWKS + seamless key rotation, claim\u2192role mapping, Postgres/Flyway audit log, Kafka auth events, full integration tests + Postman."
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/actuator/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "actuator",
+            "health"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Demo - Mint JWT",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/demo/token?sub=john&roles=USER,ADMIN&permissions=orders:read,orders:write",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "demo",
+            "token"
+          ],
+          "query": [
+            {
+              "key": "sub",
+              "value": "john"
+            },
+            {
+              "key": "roles",
+              "value": "USER,ADMIN"
+            },
+            {
+              "key": "permissions",
+              "value": "orders:read,orders:write"
+            }
+          ]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+              "var json = pm.response.json();",
+              "pm.environment.set('token', json.token);",
+              "console.log('Stored token with kid=' + json.kid);"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "User - Me",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/user/me",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "user",
+            "me"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Demo - Rotate keys",
+      "request": {
+        "method": "POST",
+        "url": {
+          "raw": "{{baseUrl}}/api/demo/rotate",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "demo",
+            "rotate"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Admin - Force JWKS refresh",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{token}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/admin/jwks/refresh",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "admin",
+            "jwks",
+            "refresh"
+          ]
+        }
+      }
+    }
+  ]
+}
