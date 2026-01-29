@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: auth-gateway
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+
+auth:
+  issuer: "http://localhost:8080"   # for demo profile; override in prod
+  audience: "api"
+  jwksUri: "http://localhost:8080/oauth2/jwks"  # for demo profile; override in prod
+  jwksCache:
+    redisKey: "auth-gateway:jwks"
+    ttl: "PT10M"
+    refreshDelayMillis: 300000
